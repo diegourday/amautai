@@ -32,7 +32,9 @@
     "WORKOS_CLIENT_ID": "client_01M55794X1B33VNMX8PW0JEYQ9",
     "WORKOS_TOKEN_ISSUER": "https://api.workos.com/user_management/client_01M55794X1B33VNMX8PW0JEYQ9",
     "APP_ORIGINS": "http://localhost:5173,https://amautai.turistivo.com",
-    "WHATSAPP_GATEWAY_URL": "https://wts.urday.dev"
+    "WHATSAPP_GATEWAY_URL": "https://wts.urday.dev",
+    "ROOM_PRESET_MEMORY_ENABLED": "true",
+    "ATOMICMEMORY_API_URL": "https://api.atomicstrata.ai"
   },
   "d1_databases": [
     {
