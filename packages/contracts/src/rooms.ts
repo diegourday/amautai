@@ -107,3 +107,22 @@ export type MarketRun = {
   feedback: "" | "correct" | "wrong" | "help"
   delta: number
 }
+
+/**
+ * Remembered room defaults: only the typed game options, never names.
+ * Defaults are unwrapped so a stored preset always states every option.
+ */
+export const roomPresetInput = z
+  .object({
+    kind: roomInput.shape.kind.unwrap(),
+    mode: roomInput.shape.mode.unwrap(),
+    region: roomInput.shape.region,
+  })
+  .strict()
+export type RoomPreset = z.infer<typeof roomPresetInput>
+export type RoomPresetMemory =
+  | { kind: "disabled" }
+  | {
+      kind: "enabled"
+      remembered: { preset: RoomPreset; savedAt: string } | null
+    }

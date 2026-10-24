@@ -9,11 +9,14 @@ import type { RoomService } from "../application/service.ts"
 import { registerRoomPlayRoutes } from "./play-routes.ts"
 import type { AssignmentService } from "../application/assignment-service.ts"
 import { RoomError } from "../domain/cargo.ts"
+import type { RoomPresetService } from "../application/preset-service.ts"
+import { registerRoomPresetRoutes } from "./preset-routes.ts"
 export function registerRoomRoutes(
   app: Hono<AppEnv>,
   deps: {
     assignments: (c: AppContext) => AssignmentService
     service: (c: AppContext) => RoomService
+    preset: (c: AppContext) => RoomPresetService
     ensure: (c: AppContext) => Promise<unknown>
   }
 ) {
@@ -30,6 +33,8 @@ export function registerRoomRoutes(
     userId: c.get("identity").user.id,
   })
   const body = (c: AppContext) => c.req.json().catch(() => null)
+  // Before the /:room routes so "preset" is never read as a room id.
+  registerRoomPresetRoutes(app, { service: deps.preset, actor })
   async function action(c: AppContext, run: () => Promise<unknown>) {
     try {
       return c.json(await run())

@@ -4,7 +4,9 @@ import type {
   CargoRegion,
   CargoParticipant,
   CargoRoom,
+  RoomPreset,
 } from "@amautai/contracts"
+import { useAuth } from "@/features/auth"
 import { useMessages } from "@/shared/i18n/use-messages"
 import { familyHomePath } from "../model/family-catalog"
 import { useRooms } from "../model/use-rooms"
@@ -13,6 +15,7 @@ import { FairPlayer } from "./fair-player"
 import { NurseryPlayer } from "./nursery-player"
 import { MarketPlayer } from "./market-player"
 import { CargoPlayer } from "./cargo-player"
+import { RoomPresetPanel } from "./room-preset"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { PhoneInput } from "@/shared/ui/phone-input"
@@ -71,6 +74,10 @@ const availableGames = Object.entries(gameNames).filter(
   ([kind]) => kind !== "data"
 )
 const regions = { coast: "Costa", highlands: "Sierra", jungle: "Selva" }
+const modes = {
+  practice: "Práctica adaptativa",
+  challenge: "Desafío de la sala",
+}
 export function Rooms() {
   const { roomId, participantId } = useParams()
   return participantId && roomId ? (
@@ -152,7 +159,7 @@ function RoomManager({ roomId }: { roomId?: string }) {
   const nav = useNavigate()
   const data = useRooms(roomId)
   const [region, setRegion] = useState<CargoRegion>("coast")
-  const [kind, setKind] = useState<CargoRoom["kind"]>("builder")
+  const [kind, setKind] = useState<RoomPreset["kind"]>("builder")
   const [mode, setMode] = useState<CargoRoom["mode"]>("practice")
   const [name, setName] = useState("")
   const [guardianPhone, setGuardianPhone] = useState("")
@@ -163,6 +170,14 @@ function RoomManager({ roomId }: { roomId?: string }) {
   const showCreate = creating || (!data.loading && !data.rooms.length)
   const [deletingRoom, setDeletingRoom] = useState<CargoRoom | null>(null)
   const [removing, setRemoving] = useState<CargoParticipant | null>(null)
+  // Remount remembered options per account so nothing outlives an identity.
+  const { user, tenant } = useAuth()
+  const presetOwner = tenant && user ? tenant.id + ":" + user.id : null
+  const preset: RoomPreset = {
+    kind,
+    mode: kind !== "cargo" ? mode : "challenge",
+    region,
+  }
   const number = new Intl.NumberFormat(locale)
   const items = (Object.keys(regions) as CargoRegion[]).map((value) => ({
     value,
@@ -298,7 +313,7 @@ function RoomManager({ roomId }: { roomId?: string }) {
               }))}
               value={kind}
               onValueChange={(value) => {
-                if (value) setKind(value as CargoRoom["kind"])
+                if (value) setKind(value as RoomPreset["kind"])
               }}
               disabled={data.busy}
             >
@@ -390,6 +405,23 @@ function RoomManager({ roomId }: { roomId?: string }) {
               </SelectContent>
             </Select>
           </Field>
+          {presetOwner && (
+            <RoomPresetPanel
+              key={presetOwner}
+              current={preset}
+              describe={(p) => ({
+                game: m(gameNames[p.kind]).split(" · ")[0],
+                mode: m(modes[p.mode]),
+                region: m(regions[p.region]),
+              })}
+              onApply={(p) => {
+                setKind(p.kind)
+                setMode(p.mode)
+                setRegion(p.region)
+              }}
+              disabled={data.busy}
+            />
+          )}
           <Button
             type="submit"
             className="justify-self-start"

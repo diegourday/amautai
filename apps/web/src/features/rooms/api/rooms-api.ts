@@ -12,6 +12,8 @@ import type {
   CargoRegion,
   CargoRun,
   CargoAnswer,
+  RoomPreset,
+  RoomPresetMemory,
 } from "@amautai/contracts"
 export function createRoomsApi(token?: string) {
   const request = <T>(path: string, options: RequestInit = {}) =>
@@ -145,6 +147,21 @@ export function createRoomsApi(token?: string) {
       }),
     list: (signal?: AbortSignal) =>
       request<{ rooms: CargoRoom[] }>("/api/game-rooms", { signal }),
+    preset: (signal?: AbortSignal) =>
+      request<RoomPresetMemory>("/api/game-rooms/preset", { signal }),
+    rememberPreset: (preset: RoomPreset, signal?: AbortSignal) =>
+      request<{
+        remembered: { preset: RoomPreset; savedAt: string }
+      }>("/api/game-rooms/preset", {
+        method: "PUT",
+        body: JSON.stringify(preset),
+        signal,
+      }),
+    forgetPreset: (signal?: AbortSignal) =>
+      request<{ forgotten: true }>("/api/game-rooms/preset", {
+        method: "DELETE",
+        signal,
+      }),
     deleteRoom: (room: string) =>
       request<{ ok: true }>(path(room), { method: "DELETE" }),
     detail: (room: string, signal?: AbortSignal) =>

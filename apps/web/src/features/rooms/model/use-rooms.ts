@@ -25,6 +25,12 @@ export function roomError(e: unknown) {
     teacher_required: "Completa tu perfil docente para crear una sala.",
     room_full: "La sala admite hasta 100 participantes.",
     invalid_room_input: "Escribe un nombre válido de hasta 80 caracteres.",
+    room_preset_disabled:
+      "Recordar opciones no está habilitado en este servidor.",
+    room_preset_not_found:
+      "No hay opciones recordadas para olvidar. Actualiza la página.",
+    room_preset_unavailable:
+      "Atomic Memory no confirmó el cambio. Vuelve a intentarlo; crear salas sigue funcionando.",
   }
   return (
     (e instanceof ApiError && e.code && messages[e.code]) ||

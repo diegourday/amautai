@@ -10,6 +10,8 @@ import { authMailer } from "./modules/auth/infrastructure/auth-mailer.ts"
 import { roomService } from "./modules/rooms/application/service.ts"
 import { d1Rooms } from "./modules/rooms/infrastructure/d1-rooms.ts"
 import { registerRoomRoutes } from "./modules/rooms/http/routes.ts"
+import { roomPresetService } from "./modules/rooms/application/preset-service.ts"
+import { atomicRoomPresets } from "./modules/rooms/infrastructure/atomic-room-presets.ts"
 import { educationService } from "./modules/education/application/service.ts"
 import { d1Education } from "./modules/education/infrastructure/d1-education.ts"
 import { registerEducationRoutes } from "./modules/education/http/routes.ts"
@@ -170,6 +172,15 @@ export function createApp(
   registerRoomRoutes(app, {
     assignments,
     service: (c) => roomService(d1Rooms(c.env.DB), () => crypto.randomUUID()),
+    preset: (c) =>
+      roomPresetService(
+        atomicRoomPresets({
+          enabled: c.env.ROOM_PRESET_MEMORY_ENABLED,
+          apiUrl: c.env.ATOMICMEMORY_API_URL,
+          apiKey: c.env.ATOMICMEMORY_API_KEY,
+        }),
+        d1Rooms(c.env.DB)
+      ),
     ensure: ensureTenant,
   })
   registerNotificationRoutes(

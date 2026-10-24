@@ -200,6 +200,30 @@ Root AGENTS.md requires reading the relevant skill and rubric. The existing scaf
 
 R2, Workers AI or MiniMax, Vectorize, Durable Objects/WebSockets, and Containers remain optional and are not enabled.
 
+### Remembered room options (Atomic Memory, optional)
+
+The new-room form in **Salas de juego** can remember one set of options per teacher: game, mode and game context. Nothing is remembered until the teacher selects **Recordar opciones actuales**. Remembered options are applied only when the teacher selects **Usar opciones recordadas**, so an edited form is never overwritten. **Olvidar** removes them. Room names, student names and guardian phones are never sent.
+
+The feature is off unless all three settings are present. Without them the panel is hidden and room creation is unchanged:
+
+```dotenv
+ROOM_PRESET_MEMORY_ENABLED=true
+ATOMICMEMORY_API_URL=https://<atomic-memory-host>
+ATOMICMEMORY_API_KEY=<server-only key>  # Worker secret; never a VITE_ variable
+```
+
+The API URL must use HTTPS. Plain HTTP is accepted only for loopback test fixtures. The Worker stores the preset with verbatim quick ingest (`content_class: summary`). It is stored under a `user_id` derived from the verified tenant and user, with a stable `metadata.externalId` derived from a SHA-256 hash of that subject. Hosted Cloud deduplicates external IDs across the project, so sharing one constant ID between teachers would overwrite another teacher's choices. Every save is read back through the subject- and source-filtered `/v1/memories/list` route and must match both that external ID and the requested options before it is reported. The source is reserved for one preset per subject; duplicate or inconsistent list results are rejected. Core returns the subject in `user_id`; Hosted Cloud returns a project identity in `user_id` and the subject in `session_id`. Both mappings are checked before returning any preset. A correction updates the same external ID in place; it does not delete the previous choices before writing. If the new write fails, the UI reloads the provider state rather than claiming that nothing changed. All provider calls in one request share a four-second deadline. Forgetting requires Core's `{ success: true }` receipt or Hosted Cloud's `{ deleted: true, id }` receipt with the requested ID, plus a readback showing the preset is gone. The endpoints `GET`, `PUT` and `DELETE /api/game-rooms/preset` use the same session, origin, CSRF and teacher checks as room creation. Tests use a labeled local HTTP fixture: `apps/worker/test/room-preset.test.mjs`.
+
+A real Hosted Cloud validation also passed: save, fresh-request recall, in-place update, teacher isolation and confirmed deletion. The real HTTP handlers were exercised with temporary local SQLite, synthetic authentication and the real memory provider; this does not establish a deployed public flow.
+
+To repeat the opt-in live provider test from `apps/worker`, configure a Git-ignored `.dev.vars` with the API URL/key and run:
+
+```bash
+ATOMICMEMORY_LIVE_TEST=true node --env-file=.dev.vars --experimental-strip-types --test test/room-preset-live.test.mjs
+```
+
+The test creates unique synthetic subjects and removes their memories afterward. Normal `pnpm run check` skips this external-service test. Never put the key in browser variables or commit `.dev.vars`.
+
 Google OAuth was verified in Edge and returned to the public dashboard. GitHub returned an email verification challenge; the callback now continues to the in-app code screen instead of treating that challenge as a failed login. Automated integration tests cover the encrypted OAuth continuation, successful code verification, PKCE forwarding, state/origin rejection, and direct OAuth success. After deployment, the real GitHub flow returned to the in-app verification screen in Edge. The user completed the emailed code, reached the public dashboard with the existing account and project, and the session persisted after reload. Both Google and GitHub public login flows are verified.
 
 ## Resume work

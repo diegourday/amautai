@@ -1,5 +1,6 @@
 import { assignmentRows } from "./messages-assignments.ts"
 import { uiPolishRows } from "./messages-ui-polish.ts"
+import { roomPresetRows } from "./messages-room-preset.ts"
 import { familyGameRows } from "./messages-family-games.ts"
 import { builderRows } from "./messages-builder.ts"
 import { dataRows } from "./messages-data.ts"
@@ -925,6 +926,7 @@ export const spanishMessages: Record<string, string> = Object.fromEntries(
     ...legalRows,
     ...uiPolishRows,
     ...assignmentRows,
+    ...roomPresetRows,
   ].map(([es]) => [es, es])
 )
 export const chankaMessages: Record<string, string> = Object.fromEntries(
@@ -942,6 +944,7 @@ export const chankaMessages: Record<string, string> = Object.fromEntries(
     ...legalRows,
     ...uiPolishRows,
     ...assignmentRows,
+    ...roomPresetRows,
   ].map(([es, quy]) => [es, quy])
 )
 export const aymaraMessages: Record<string, string> = Object.fromEntries(
@@ -959,6 +962,7 @@ export const aymaraMessages: Record<string, string> = Object.fromEntries(
     ...legalRows,
     ...uiPolishRows,
     ...assignmentRows,
+    ...roomPresetRows,
   ].map(([es, , ay]) => [es, ay])
 )
 spanishMessages["Datos pendientes_one"] = "{{count}} dato por completar"

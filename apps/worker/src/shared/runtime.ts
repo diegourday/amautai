@@ -6,6 +6,9 @@ export type Bindings = {
   EMAIL_FROM?: string
   WHATSAPP_GATEWAY_URL?: string
   WHATSAPP_GATEWAY_TOKEN?: string
+  ROOM_PRESET_MEMORY_ENABLED?: string
+  ATOMICMEMORY_API_URL?: string
+  ATOMICMEMORY_API_KEY?: string
   DB: D1Database
   WORKOS_CLIENT_ID: string
   WORKOS_TOKEN_ISSUER: string
